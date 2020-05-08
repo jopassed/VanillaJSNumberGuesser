@@ -1,97 +1,70 @@
 'use strict';
 
-//Game Values
+//variables
 let min = 1,
     max = 10,
-    winningNum = getRandomNumber(min, max),
-    guessesLeft = 3;
+    numberOfTries = 3,   
+    winningNumber = randomNumber(min, max);
+  
+console.log(winningNumber);
+console.log(typeof winningNumber);    
+//set min and max to UI
+document.querySelector('.min-num').innerText = min;
+document.querySelector('.max-num').innerText = max;
 
-//UI Elements
-const UIgame = document.getElementById('game'),
-      UIminNum = document.querySelector('.min-num'),
-      UImaxNum = document.querySelector('.max-num'),
-      UIguessBtn = document.querySelector('#guess-btn'),
-      UIguessInput = document.querySelector('#guess-input'),
-      UImessage = document.querySelector('.message');
+//UI Variables
+const UImessage = document.querySelector('.message'),
+    UIinputBtn = document.querySelector('#guess-btn'),
+    UIinput = document.querySelector('#guess-input'),
+    UIgame = document.querySelector('#game');
 
-
-//Assign UI min and max numbers
-UIminNum.textContent = min;
-UImaxNum.textContent = max;
-
-
-//Play again event listener 
+//Event Listeners    
+UIinputBtn.addEventListener('click', checkGuess);
+UIinput.addEventListener('submit', checkGuess);
 UIgame.addEventListener('mousedown', function(e){
-    if(e.target.className === 'play-again'){
+    if (e.target.className === 'play-again'){
         window.location.reload();
     }
 });
 
-//listen for guess
-
-UIguessBtn.addEventListener('click', function(){
-    let guess = parseInt(UIguessInput.value);
-
-    //Validate
-    if(isNaN(guess) || guess < min || guess > max){
-        setMessage(`Please enter a number between ${min} and ${max}`, 'red');
-    }
-
-    //check if won
-    if(guess === winningNum){
-    
-        gameOver(true, `${winningNum} is correct, YOU WIN!`);
-        
-    } else {
-        //wrong number
-        guessesLeft -= 1;
-
-        if(guessesLeft === 0){
-            //game over - lost
-
-            gameOver(false, `Game Over, you lost. The correct number was ${winningNum}`);
-            //disable input
-
-        } else {
-            //game continues - answer wrong
-
-             //change border color
-            UIguessInput.style.borderColor = 'red';
-
-            //clear input
-            UIguessInput.value = '';
-
-            //Tell user its the wrong number
-            setMessage(`${guess} is not correct, ${guessesLeft} guesses left`, 'red')
-        }
-
-    }
-});
-
-// Game over
 function gameOver(won, msg){
-    let color;
-    won === true ? color = 'green' : color = 'red';
-
-    //disable input
-    UIguessInput.disabled = true;
-    //change border color
-    UIguessInput.style.borderColor = color;
-    //set message
-    setMessage(msg, color); // brad forgot about his param in the tutorial :(
-
-    //play again?
-    UIguessBtn.value = 'Play Again';
-    UIguessBtn.className += 'play-again';
+let color;
+won = true ? color = 'green' : color = 'red';
+UIinput.disabled = true;
+setMessage(msg, color);
+UIinputBtn.value = 'Play Again';
+UIinputBtn.className = 'play-again';    
 }
 
-//get winning number - functions are hoisted so it bumps up to the top.
-function getRandomNumber(min, max){
-    return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
-// set message
-function setMessage(msg, color){
-    UImessage.textContent = msg;
+function setMessage(msg, color) {
+    UIinput.style.borderColor = color;
     UImessage.style.color = color;
+    UImessage.textContent = msg;
+}
+
+function checkGuess(e){
+    e.preventDefault();
+    let guessNumber = parseInt(UIinput.value);
+    if (isNaN(guessNumber) || guessNumber < min || guessNumber > max) {
+        UImessage.innerText = `Please Pick a number between ${min} and ${max}.`;
+        UIinput.style.borderColor = 'red';
+        UImessage.style.color = 'red';
+    }
+        if (guessNumber === winningNumber) {
+            gameOver(true, `You picked ${winningNumber} and you are correct!`);
+        } else {
+            numberOfTries -= 1;
+            if (numberOfTries != 0){
+                UImessage.innerText = `Your pick up ${guessNumber} is INCORRECT. You have ${numberOfTries} tries left.`;
+                UIinput.style.borderColor = 'red';
+                UImessage.style.color = 'red';
+            } else {
+                gameOver(false, `You didn't guess the right number. The number was ${winningNumber}. Sorry bucko!`);
+            }
+        }
+}
+//random number function
+function randomNumber(min, max){
+return Math.floor(Math.random() * (max - min + 1) + min);
+
 }
