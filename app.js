@@ -1,49 +1,97 @@
 'use strict';
 
-//variables
-let randomNumber = Math.floor(Math.random() * (9 + 1) + 1);
-const form = document.querySelector("#form-input");
-const pMsg = document.createElement('p');
-pMsg.className = 'gameMsg';
-pMsg.style.color = 'red';
-let numberOfGuesses = 0;
-const guess = document.querySelector('.guess-input');
-const maxGuesses = 3;
-console.log(randomNumber);
+//Game Values
+let min = 1,
+    max = 10,
+    winningNum = getRandomNumber(min, max),
+    guessesLeft = 3;
 
-form.addEventListener('submit', checkGuess);
+//UI Elements
+const UIgame = document.getElementById('game'),
+      UIminNum = document.querySelector('.min-num'),
+      UImaxNum = document.querySelector('.max-num'),
+      UIguessBtn = document.querySelector('#guess-btn'),
+      UIguessInput = document.querySelector('#guess-input'),
+      UImessage = document.querySelector('.message');
 
-function resetGame(){
-    randomNumber = Math.floor(Math.random() * (9 + 1) + 1);
-    console.log(randomNumber);
-    numberOfGuesses = 0;
-    guess.value = '';
-    document.querySelector('.gameMsg').remove();
-    pMsg.style.color = 'red';
-}
 
-function checkGuess(e){
-    e.preventDefault();
-    let guessNumber = parseInt(guess.value);
-    if (guessNumber && numberOfGuesses < maxGuesses) {
-        numberOfGuesses++;
-        if (guessNumber === randomNumber && numberOfGuesses <= maxGuesses){
-            pMsg.style.color = 'green';
-            pMsg.innerText = `Your guess of: ${guess.value} is Correct! Congrats!`;
-            form.after(pMsg);
-            setTimeout(resetGame, 2000);
-        } else if (numberOfGuesses < maxGuesses) {
-            pMsg.innerText = `Your guess of ${guess.value} is WRONG. You only have:  ${(maxGuesses - numberOfGuesses)} guesses left!`;
-            form.after(pMsg); 
-            guess.value = '';
-        } else if (numberOfGuesses === maxGuesses ) {
-            pMsg.innerText = `You are out of guesses! The number was ${randomNumber}. Try again with a new number!`;
-            form.after(pMsg);
-            setTimeout(resetGame, 2000); 
-        }   
-    } else {
-        pMsg.innerText = 'Please Enter a Guess!';
-        form.after(pMsg);
+//Assign UI min and max numbers
+UIminNum.textContent = min;
+UImaxNum.textContent = max;
+
+
+//Play again event listener 
+UIgame.addEventListener('mousedown', function(e){
+    if(e.target.className === 'play-again'){
+        window.location.reload();
+    }
+});
+
+//listen for guess
+
+UIguessBtn.addEventListener('click', function(){
+    let guess = parseInt(UIguessInput.value);
+
+    //Validate
+    if(isNaN(guess) || guess < min || guess > max){
+        setMessage(`Please enter a number between ${min} and ${max}`, 'red');
     }
 
+    //check if won
+    if(guess === winningNum){
+    
+        gameOver(true, `${winningNum} is correct, YOU WIN!`);
+        
+    } else {
+        //wrong number
+        guessesLeft -= 1;
+
+        if(guessesLeft === 0){
+            //game over - lost
+
+            gameOver(false, `Game Over, you lost. The correct number was ${winningNum}`);
+            //disable input
+
+        } else {
+            //game continues - answer wrong
+
+             //change border color
+            UIguessInput.style.borderColor = 'red';
+
+            //clear input
+            UIguessInput.value = '';
+
+            //Tell user its the wrong number
+            setMessage(`${guess} is not correct, ${guessesLeft} guesses left`, 'red')
+        }
+
+    }
+});
+
+// Game over
+function gameOver(won, msg){
+    let color;
+    won === true ? color = 'green' : color = 'red';
+
+    //disable input
+    UIguessInput.disabled = true;
+    //change border color
+    UIguessInput.style.borderColor = color;
+    //set message
+    setMessage(msg, color); // brad forgot about his param in the tutorial :(
+
+    //play again?
+    UIguessBtn.value = 'Play Again';
+    UIguessBtn.className += 'play-again';
+}
+
+//get winning number - functions are hoisted so it bumps up to the top.
+function getRandomNumber(min, max){
+    return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+// set message
+function setMessage(msg, color){
+    UImessage.textContent = msg;
+    UImessage.style.color = color;
 }
