@@ -37,7 +37,7 @@ function checkGuess(e){
             form.after(pMsg); 
             guess.value = '';
         } else if (numberOfGuesses === maxGuesses ) {
-            pMsg.innerText = `You are out of guesses! Try again with a new number!`;
+            pMsg.innerText = `You are out of guesses! The number was ${randomNumber}. Try again with a new number!`;
             form.after(pMsg);
             setTimeout(resetGame, 2000); 
         }   
