@@ -49,19 +49,20 @@ function checkGuess(e){
         UImessage.innerText = `Please Pick a number between ${min} and ${max}.`;
         UIinput.style.borderColor = 'red';
         UImessage.style.color = 'red';
-    }
+    } else {
         if (guessNumber === winningNumber) {
             gameOver(true, `You picked ${winningNumber} and you are correct!`);
         } else {
-            numberOfTries -= 1;
-            if (numberOfTries != 0){
+        numberOfTries -= 1;
+            if (numberOfTries === 0){
+                gameOver(false, `You didn't guess the right number. The number was ${winningNumber}. Sorry bucko!`);
+            } else {
                 UImessage.innerText = `Your pick up ${guessNumber} is INCORRECT. You have ${numberOfTries} tries left.`;
                 UIinput.style.borderColor = 'red';
                 UImessage.style.color = 'red';
-            } else {
-                gameOver(false, `You didn't guess the right number. The number was ${winningNumber}. Sorry bucko!`);
             }
         }
+    }
 }
 //random number function
 function randomNumber(min, max){
